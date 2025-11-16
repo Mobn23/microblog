@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1.4
+FROM python:3.8-alpine
+
+RUN apk add --no-cache make build-base
+
+RUN adduser -D microblog
+
+WORKDIR /home/microblog
+
+VOLUME ["/home/microblog/app", "/home/microblog/tests"]
+
+COPY requirements requirements
+COPY Makefile .
+COPY .pylintrc .
+COPY pytest.ini .
+
+RUN python -m venv .venv && \
+    .venv/bin/pip3 install -r requirements/test.txt
+
+ENV PATH="/home/microblog/.venv/bin:$PATH"
+ENV FLASK_APP microblog.py
+
+RUN chown -R microblog:microblog ./
+USER microblog
+
+
+ENTRYPOINT ["make", "test"]

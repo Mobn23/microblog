@@ -108,3 +108,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# mobn own docker notes
+docker-run-commands.txt

@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  MySQL:
+    image: mysql/mysql-server:5.7
+    container_name: microblog-mysql
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=microblog
+      - MYSQL_USER=microblog
+      - MYSQL_PASSWORD=mobn23
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  prod:
+    image: mobn23/microblog:1.0.0-prod
+    container_name: microblog-prod
+    depends_on:
+      - MySQL
+    ports:
+      - "5000:5000"
+
+  test:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_test
+    container_name: microblog-test
+    depends_on:
+      - MySQL
+    volumes:
+      - ./app:/home/microblog/app
+      - ./tests:/home/microblog/tests
+
+volumes:
+  mysql_data: {}
