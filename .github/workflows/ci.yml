@@ -4,7 +4,7 @@ name: Ci
 
 on:
   push:
-    branches: [ "feature/docker-prod" ]
+    branches: [ "feature/**" ]
   pull_request:
     branches: [ "master" ]
 
