@@ -9,6 +9,16 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 ## Fixed
 
 
+<!-- ## [11.1.0] - 2025-11-17
+## Added
+- migrations/versions/6ddcba87a7dc_followers.py
+- tests/unit/models/test_followers.py
+## Changed
+- app/main/routes.py
+- app/models.py
+- app/templates/user.html -->
+
+
 ## [11.0.0] - 2025-11-17
 ## Added
 - Production Dockerfile (docker/Dockerfile_prod).
