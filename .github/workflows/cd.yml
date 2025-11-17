@@ -2,10 +2,8 @@ name: CD
 
 on:
   push:
-    branches:
-        [ "feature/cd" ]
-    # tags:
-    #   - "v*.*.*" # build+push on version tags
+    tags:
+      - "v*.*.*" # build+push on version tags
 
 jobs:
   build-and-push:
