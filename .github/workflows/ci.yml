@@ -1,6 +1,6 @@
 # This workflow will run docker file for tests by running "make test" command.
 
-name: Ci
+name: CI
 
 on:
   push:
