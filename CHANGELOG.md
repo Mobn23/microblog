@@ -23,3 +23,4 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 ## Fixed
 - docker/Dockerfile_prod
 - .github/workflows/ci.yml
+- secrets(variables used in cd.yml) added in github repo
