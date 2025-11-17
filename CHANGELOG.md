@@ -10,11 +10,13 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 - docker-compose.yml
 - Dockerfile_test
 - .github/workflows/ci.yml
+- .github/workflows/cd.yml
 ## Changed
 - docker-compose.yml
 - README.md
 ## Fixed
 - docker/Dockerfile_prod
+- .github/workflows/ci.yml
 
 <!-- [1.0.0] - yyyy-mm-dd
 Here we would have the update steps for 1.0.0 for people to follow.
