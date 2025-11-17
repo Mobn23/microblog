@@ -5,6 +5,12 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 
 ## [Unreleased]
 ## Added
+## Changed
+## Fixed
+
+
+## [11.0.0] - 2025-11-17
+## Added
 - Production Dockerfile (docker/Dockerfile_prod).
 - CHANGELOG.md, commit-conventions.txt
 - docker-compose.yml
@@ -17,11 +23,3 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 ## Fixed
 - docker/Dockerfile_prod
 - .github/workflows/ci.yml
-
-<!-- [1.0.0] - yyyy-mm-dd
-Here we would have the update steps for 1.0.0 for people to follow.
-Added
-Changed
-PROJECTNAME-ZZZZ PATCH Drupal.org is now used for composer.
-Fixed
-PROJECTNAME-TTTT PATCH Add logic to runsheet teaser delete to delete corresponding schedule cards. -->
