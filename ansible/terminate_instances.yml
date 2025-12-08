@@ -1,40 +1,45 @@
-# Gather EC2 facts from remote instance
 ---
--   hosts: local
-    connection: local
-    gather_facts: False
-    collections:
-        - azure.azcollection
-    roles:
-        - gather_instances
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    # 1. Define Resource Group here
+    resource_group: "DIDA-MOBN23-DV1673-H25-LP2" 
+    
+    # 2. List the names of the servers you want to delete
+    servers_to_delete:
+      - appserver1
+      - appserver2
+      - database
+      - loadbalancer
 
+  tasks:
+    # STEP 1: Loop through the list and delete VM + NIC + IP for each one
+    # This uses "remove_instance.yml" file
+    - name: Remove Instances and their NICs/IPs
+      include_tasks: ./roles/terminate_instances/tasks/remove_instance.yml
+      loop: "{{ servers_to_delete }}"
+      loop_control:
+        loop_var: iname
 
-
--   name: remove instance
-    hosts: devops
-    connection: local
-    gather_facts: False
-    collections:
-        - azure.azcollection
-    roles:
-        - terminate_instances
-
-
-
--   name: remove networks
-    hosts: local
-    gather_facts: False
-    tasks:
-        -   include_tasks: roles/terminate_instances/tasks/vnet.yml
-    collections:
-        - azure.azcollection
-
-
-
--   name: remove security groups
-    hosts: local
-    gather_facts: False
-    vars:
+# AFTER the VM deletion loop but BEFORE the Network deletion
+    - name: Remove Security Groups explicitly
+      azure_rm_securitygroup:
+        resource_group: "{{ resource_group }}"
+        name: "{{ item }}"
         state: absent
-    roles: 
-        - security_groups
+      loop:
+        - appserver-sg
+        - database-sg
+        - loadbalancer-sg
+
+    # STEP 2: Once NICs are gone, it is safe to remove the Network
+    # This uses "vnet.yml" file
+    - name: Remove Network (Subnet and VNet)
+      include_tasks: ./roles/terminate_instances/tasks/vnet.yml
+
+    - name: Remove DNS Zone
+      azure_rm_dnszone:
+        resource_group: "{{ resource_group }}"
+        name: "mobn23.me"
+        state: absent

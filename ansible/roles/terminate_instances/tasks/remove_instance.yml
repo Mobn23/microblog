@@ -19,3 +19,9 @@
         resource_group: "{{ resource_group }}"
         name: "{{ iname }}-ip"
         state: absent
+
+-   name: Delete Network Security Group
+    azure_rm_securitygroup:
+        resource_group: "{{ resource_group }}"
+        name: "{{ iname }}-sg"
+        state: absent
