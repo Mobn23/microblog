@@ -1,0 +1,8 @@
+# ansible/debug-devops.yml
+---
+- name: Debug devops hosts
+  hosts: devops
+  gather_facts: false
+  tasks:
+    - debug:
+        msg: "Host in devops: {{ inventory_hostname }}"

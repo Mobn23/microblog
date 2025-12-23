@@ -4,7 +4,7 @@
   add_host:
     hostname: "{{ item.name }}"
     groups:
-        devops
+        provision_targets
     # the keys below are dynamic and can have any name and value. A way to add data to the host which can be read later
     iname: "{{ item.name }}" 
     itype: "{{ item.type }}"

@@ -1,4 +1,15 @@
 
-root_user: azureuser
+---
+root_user: deploy
+
+# new "real" admin user created by 10-first-minutes
+server_user: deploy
+server_user_groups:
+  - sudo
+  # add docker later only if you install docker:
+  # - docker
+
+# simplest secure option: lock password login (SSH keys only)
+server_user_pass: "!"     # "!" means locked password in /etc/shadow
 
 root_password: "EUzstm7r/ohqUdCMYq3Nmb/3g3lt0nDVrV7+lja7iDM="

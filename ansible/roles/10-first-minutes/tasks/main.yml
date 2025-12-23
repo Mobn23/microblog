@@ -1,88 +1,107 @@
 ---
--   name: Set root password
-    user:
-        name: root
-        password: "{{ root_password | password_hash('sha512') }}"
+- name: Set root password
+  become: true
+  ansible.builtin.user:
+    name: root
+    password: "{{ root_password | password_hash('sha512') }}"
+
+- name: Update apt-cache and upgrade
+  become: true
+  ansible.builtin.apt:
+    force_apt_get: true
+    update_cache: true
+    cache_valid_time: 3600
+    upgrade: dist
+
+- name: Install packages
+  become: true
+  ansible.builtin.apt:
+    force_apt_get: true
+    name: "{{ packages }}"
+    state: present
+
+- name: Copy unattended upgrades 10 settings
+  become: true
+  ansible.builtin.copy:
+    mode: "0644"
+    src: apt_periodic
+    dest: /etc/apt/apt.conf.d/10periodic
+
+- name: Copy unattended upgrades 50 settings
+  become: true
+  ansible.builtin.copy:
+    mode: "0644"
+    src: apt_periodic_50
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+
+- name: Create user
+  become: true
+  ansible.builtin.user:
+    name: "{{ server_user }}"
+    state: present
+    shell: /bin/bash
+    groups: "{{ server_user_groups | default(['sudo']) }}"
+    append: true
+    create_home: true
+    password: "{{ (server_user_pass | default('!')) | password_hash('sha512') if (server_user_pass | default('!')) not in ['!', '*'] else omit }}"
 
 
--   name: Update apt-cache and upgrade
-    apt:
-        force_apt_get: yes
-        update_cache: "True"
-        cache_valid_time: 3600
-        upgrade: yes
-
--   name: Install packages
-    apt:
-        force_apt_get: yes
-        name: "{{ packages }}"
-
--   name: Copy unattended upgrades 10 settings
-    copy:
-        mode: "644"
-        src: files/apt_periodic
-        dest: /etc/apt/apt.conf.d/10periodic
-
--   name: Copy unattended upgrades 50 settings
-    copy:
-        mode: "644"
-        src: files/apt_periodic_50
-        dest: /etc/apt/apt.conf.d/50unattended-upgrades
-
--   name: Create user
-    user:
-        name: "{{ server_user }}"
-        password: "{{ server_user_pass | password_hash('sha512') }}"
-        state: present
-        shell: /bin/bash
-        groups: "{{ server_user_groups }}"
-
--   name: Add ssh-key for new user
-    authorized_key:
-        user: "{{ server_user }}"
-        state: present
-        key: "{{ lookup('file', item) }}"
-    with_items: "{{ pub_ssh_key_location }}"
+- name: Add ssh-keys for new user
+  become: true
+  ansible.builtin.authorized_key:
+    user: "{{ server_user }}"
+    state: present
+    key: "{{ lookup('file', item) }}"
+  loop: "{{ pub_ssh_key_location if pub_ssh_key_location is iterable and pub_ssh_key_location is not string else [pub_ssh_key_location] }}"
 
 
--   name: Add user to sudoers
-    lineinfile:
-        dest: /etc/sudoers
-        regexp: "{{ server_user }} ALL"
-        line: "{{ server_user }} ALL=(ALL) NOPASSWD:ALL"
-        state: present
-        validate: '/usr/sbin/visudo -cf %s' # kan få fel med line "{{ server_user }} testing"
+# Safer than editing /etc/sudoers directly
+- name: Allow user passwordless sudo (sudoers.d)
+  become: true
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ server_user }}"
+    content: "{{ server_user }} ALL=(ALL) NOPASSWD:ALL\n"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "/usr/sbin/visudo -cf %s"
 
--   name: Disallow root and password ssh access
-    lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: "{{ item.regexp }}"
-        line: "{{ item.line }}"
-        state: present
-        validate: '/usr/sbin/sshd -T -f %s' # kan få fel med line "PermitRootLogin testing"
-    with_items:
-        - regexp: "^PasswordAuthentication"
-          line: "PasswordAuthentication no"
-        - regexp: "^PermitRootLogin"
-          line: "PermitRootLogin no"
-    notify: restart ssh
+- name: Disallow root and password ssh access
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: "/usr/sbin/sshd -T -f %s"
+  loop:
+    - regexp: '^#?PasswordAuthentication\s+'
+      line: "PasswordAuthentication no"
+    - regexp: '^#?PermitRootLogin\s+'
+      line: "PermitRootLogin no"
+  notify: restart ssh
 
--   name: flush handlers to restart SSH
-    meta: flush_handlers # we cant do it later because after this we cant ssh as root
+- name: Only allow user to ssh
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?AllowUsers\s+'
+    line: "AllowUsers {{ server_user }}"
+    state: present
+    validate: "/usr/sbin/sshd -T -f %s"
+  notify: restart ssh
 
--   name: Only allow user to ssh
-    lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: "^AllowUsers"
-        line: "AllowUsers {{ server_user }}"
-        state: present
-    # ignore_errors: yes
+# Restart SSH while we still have access
+- name: Flush handlers to apply ssh changes now
+  ansible.builtin.meta: flush_handlers
 
--   name: Remove default user
-    remote_user: "{{ server_user }}"
-    user:
-        name: azureuser
-        state: absent
-        force: yes
-        remove: yes
-    # ignore_errors: yes
+- name: Remove default azure user (if present)
+  become: true
+  ansible.builtin.user:
+    name: azureuser
+    state: absent
+    force: true
+    remove: true
+  when:
+    - remove_bootstrap_user | default(false) | bool
+

@@ -1,0 +1,17 @@
+---
+- name: Ensure Docker is installed
+  ansible.builtin.import_role:
+    name: docker
+
+- name: Run Microblog prod container on appserver
+  become: true
+  community.docker.docker_container:
+    name: "{{ microblog_container_name }}"
+    image: "{{ microblog_image }}"
+    restart_policy: always
+    env:
+      # Adjust to whatever your app actually reads
+      DATABASE_URL: "{{ microblog_database_url }}"
+    published_ports:
+      - "{{ microblog_port }}:5000"
+    state: started

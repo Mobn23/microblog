@@ -1,0 +1,10 @@
+# ansible/microblog_app.yml
+---
+
+- name: Run Microblog containers on appservers
+  hosts: appserver
+  remote_user: "{{ server_user }}"
+  become: true
+
+  roles:
+    - microblog_app

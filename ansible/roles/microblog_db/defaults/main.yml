@@ -1,0 +1,13 @@
+# ansible/roles/microblog_db/defaults/main.yml
+---
+
+mysql_image: "mysql/mysql-server:5.7"
+
+mysql_root_password: "changeme-root"
+mysql_db_name: "microblog"
+mysql_db_user: "microblog"
+mysql_db_password: "changeme-user"
+
+mysql_volume_name: "microblog-mysql-data"
+mysql_container_name: "microblog-mysql"
+mysql_port: 3306

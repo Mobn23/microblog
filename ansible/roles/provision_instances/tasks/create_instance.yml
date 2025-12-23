@@ -27,8 +27,11 @@
 - name: Create DNS Zone
   azure_rm_dnszone:
     resource_group: "{{ resource_group }}"
-    name: "mobn23.me"
+    name: "{{ domain_name }}"
     state: present
+  delegate_to: localhost
+  run_once: true
+
 
 # DNS for loadbalancer (www.mobn23.me and mobn23.me)
 -   name: Ensure "A" records for loadbalancer
@@ -72,26 +75,31 @@
     when: iname == 'appserver2'
     delegate_to: 127.0.0.1
 
+- name: Create VM
+  azure_rm_virtualmachine:
+    resource_group: "{{ resource_group }}"
+    name: "{{ iname }}-VM"
 
--   name: Create VM
-    azure_rm_virtualmachine:
-        resource_group: "{{ resource_group }}"
-        name: "{{ iname }}-VM"
-        admin_username: "{{ root_user }}"
-        ssh_password_enabled: false
-        ssh_public_keys:
-            - path: "/home/{{ root_user }}/.ssh/authorized_keys"
-              key_data: "{{ lookup('file', pub_ssh_key_location) }}"
-        vm_size: Standard_B1s
-        network_interfaces: "{{ iname }}-NIC"
-        managed_disk_type: Standard_LRS
-        os_disk_size_gb: 30
-        image:
-            offer: Debian-11
-            publisher: Debian
-            sku: 11
-            version: latest
-        tags:
-            StudentId: "{{ vmtags.StudentId }}"
-            Type: "{{ itype }}"
-            PublicIP: "{{ output_ip_address.state.ip_address }}"
+    # IMPORTANT: use the bootstrap user for initial SSH access
+    admin_username: "{{ bootstrap_user }}"
+
+    ssh_password_enabled: false
+    ssh_public_keys:
+      - path: "/home/{{ bootstrap_user }}/.ssh/authorized_keys"
+        key_data: "{{ lookup('file', pub_ssh_key_location) }}"
+
+    vm_size: Standard_B1s
+    network_interfaces: "{{ iname }}-NIC"
+    managed_disk_type: Standard_LRS
+    os_disk_size_gb: 30
+    image:
+      publisher: Canonical
+      offer: 0001-com-ubuntu-server-jammy
+      sku: 22_04-lts
+      version: latest
+    tags:
+      StudentId: "{{ vmtags.StudentId }}"
+      Type: "{{ itype }}"
+      PublicIP: "{{ output_ip_address.state.ip_address }}"
+      Stack: microblog
+

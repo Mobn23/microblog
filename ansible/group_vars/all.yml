@@ -1,22 +1,17 @@
 ---
-# Here you can add variables that will be available for all hosts.
 ansible_python_interpreter: "python3"
 
 region: northeurope
 resource_group: "DIDA-MOBN23-DV1673-H25-LP2"
 domain_name: "mobn23.me"
-
 admin_email: mobn23@student.bth.se
 
 vmtags:
-    StudentId: mobn23
+  StudentId: mobn23
 
+# use the NEW key you created
+pub_ssh_key_location: "/home/mobn/.ssh/azure.pub"
+ansible_ssh_private_key_file: "/home/mobn/.ssh/azure"
 
-pub_ssh_key_location: "/home/mobn/.ssh/id_ed25519.pub"
-
-
-server_user: "deploy"
-# Password in .vault_pass
-server_user_pass: "EUzstm7r/ohqUdCMYq3Nmb/3g3lt0nDVrV7+lja7iDM="
-server_user_groups:
-    -   sudo
+bootstrap_user: "deploy"
+server_user: deploy

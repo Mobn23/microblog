@@ -33,6 +33,8 @@
         src: nginx.conf
         dest: /etc/nginx/nginx.conf
         mode: "644"
+    notify:
+    - Restart nginx
 
 
 -   name: Template nginx site config to server
@@ -57,3 +59,9 @@
       name: nginx
       state: started
     when: not letsencrypt_cert.stat.exists
+
+- name: Ensure nginx is running with latest config (always)
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes

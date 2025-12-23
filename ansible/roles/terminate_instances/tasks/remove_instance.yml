@@ -25,3 +25,9 @@
         resource_group: "{{ resource_group }}"
         name: "{{ iname }}-sg"
         state: absent
+
+-   name: Delete managed OS disk
+    azure_rm_manageddisk:
+        resource_group: "{{ resource_group }}"
+        name: "{{ iname }}-VM"
+        state: absent

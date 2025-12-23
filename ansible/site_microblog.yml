@@ -1,0 +1,9 @@
+---
+- import_playbook: gather_instances.yml
+
+- import_playbook: 10-first-minutes.yml
+
+- import_playbook: gather_instances.yml
+
+- import_playbook: microblog_db.yml        # runs on hosts: database
+- import_playbook: microblog_app.yml       # runs on hosts: appserver
