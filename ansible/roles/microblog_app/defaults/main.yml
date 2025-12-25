@@ -4,7 +4,7 @@ microblog_container_name: "microblog-prod"
 microblog_port: 8000
 
 # Where the DB lives – hostname must resolve from appservers
-microblog_db_host: "{{ groups['database'][0] }}"
+microblog_db_host: "{{ hostvars[groups['database'][0]].ansible_default_ipv4.address }}"
 microblog_db_port: 3306
 microblog_db_name: "microblog"
 microblog_db_user: "microblog"

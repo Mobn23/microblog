@@ -1,7 +1,7 @@
 # We loop through every host in the 'appserver' group
 upstream app-hosts {
-   {% for host in groups['appserver'] %}
-      server {{ hostvars[host]['ansible_default_ipv4']['address'] }}:8000;
+   {% for h in groups['appserver'] %}
+      server {{ hostvars[h].ansible_default_ipv4.address }}:{{ microblog_port }};
    {% endfor %}
 }
 

@@ -15,3 +15,21 @@
     published_ports:
       - "{{ microblog_port }}:5000"
     state: started
+
+- name: Wait for MySQL to accept connections from appserver
+  ansible.builtin.wait_for:
+    host: "{{ hostvars[groups['database'][0]].ansible_default_ipv4.address }}"
+    port: 3306
+    delay: 2
+    timeout: 180
+    state: started
+
+- name: Run database migrations (once) using app venv
+  ansible.builtin.command:
+    cmd: >
+      docker exec {{ microblog_container_name }}
+      /bin/sh -lc
+      'export FLASK_APP=microblog.py;
+       /home/microblog/.venv/bin/python -m flask db upgrade'
+  run_once: true
+  delegate_to: "{{ groups['appserver'][0] }}"

@@ -3,10 +3,10 @@
 
 mysql_image: "mysql/mysql-server:5.7"
 
-mysql_root_password: "changeme-root"
+mysql_root_password: "mobn23"
 mysql_db_name: "microblog"
 mysql_db_user: "microblog"
-mysql_db_password: "changeme-user"
+mysql_db_password: "mobn23"
 
 mysql_volume_name: "microblog-mysql-data"
 mysql_container_name: "microblog-mysql"
