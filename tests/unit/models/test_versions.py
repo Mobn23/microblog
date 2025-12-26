@@ -6,6 +6,12 @@ import pytest
 
 @pytest.mark.versions
 def test_version_route(client, monkeypatch):
+    """
+    Docstring for test_version_route
+    
+    :param client: Description
+    :param monkeypatch: Description
+    """
     monkeypatch.setenv("APP_VERSION", "v9.9.9")
     res = client.get("/version")
     assert res.status_code == 200
