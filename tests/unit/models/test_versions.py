@@ -1,0 +1,12 @@
+"""
+Contains tests for application utility endpoints (version, health, etc.)
+"""
+
+import pytest
+
+@pytest.mark.versions
+def test_version_route(client, monkeypatch):
+    monkeypatch.setenv("APP_VERSION", "v9.9.9")
+    res = client.get("/version")
+    assert res.status_code == 200
+    assert res.get_json()["version"] == "v9.9.9"
