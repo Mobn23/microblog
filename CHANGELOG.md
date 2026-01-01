@@ -3,10 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
-## [11.1.1] - 2026-01-01
+## [11.1.1] 2026-01-01
 ## Added
-- Ansible automated env for 4 VMs
-- CD workflow 
+- Infrastructure provisioning with Ansible for 4 VMs (load balancer, 2 app servers, database)
+- CD workflow: tag-triggered deploy using Ansible (rolling update, verification)
 
 
 ## [11.1.0] - 2025-11-17
