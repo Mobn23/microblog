@@ -3,10 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
-## [Unreleased]
+## [11.1.1] - 2026-01-01
 ## Added
-## Changed
-## Fixed
+- Ansible automated env for 4 VMs
+- CD workflow 
 
 
 ## [11.1.0] - 2025-11-17
