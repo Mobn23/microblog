@@ -1,2 +1,18 @@
 [local]
 localhost ansible_connection=local
+
+[devops]
+mobn23.me  ansible_user=deploy itype=loadbalancer iname=loadbalancer
+app1.mobn23.me ansible_user=deploy itype=appserver iname=appserver1
+app2.mobn23.me ansible_user=deploy itype=appserver iname=appserver2
+db.mobn23.me   ansible_user=deploy itype=database   iname=database
+
+[loadbalancer]
+mobn23.me
+
+[appserver]
+app1.mobn23.me
+app2.mobn23.me
+
+[database]
+db.mobn23.me

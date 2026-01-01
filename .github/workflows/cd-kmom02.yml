@@ -7,7 +7,7 @@ on:
 
 jobs:
   tests:
-    uses: ./.github/workflows/ci.yml
+    runs-on: ubuntu-latest
 
   build-and-push:
     runs-on: ubuntu-latest
