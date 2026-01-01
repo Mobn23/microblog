@@ -38,7 +38,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ env.VERSION }}
+          tags: ghcr.io/${{ env.REPO_LC }}:${{ env.VERSION }}
 
       - name: Output image
         id: out
