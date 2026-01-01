@@ -43,7 +43,7 @@ jobs:
       - name: Output image
         id: out
         run: |
-          echo "image=ghcr.io/${{ github.repository }}:${{ env.VERSION }}" >> $GITHUB_OUTPUT
+          echo "image=ghcr.io/${{ env.REPO_LC }}:${{ env.VERSION }}" >> $GITHUB_OUTPUT
           echo "version=${{ env.VERSION }}" >> $GITHUB_OUTPUT
 
   deploy:
