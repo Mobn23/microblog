@@ -70,9 +70,18 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
 
-      - name: Deploy (rolling)
+      - name: Write vault password
+        run: |
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > ~/.vault_pass
+          chmod 600 ~/.vault_pass
+
+      - name: Deploy
         env:
           ANSIBLE_HOST_KEY_CHECKING: "false"
         run: |
-          make cd IMAGE=${{ needs.build-and-push.outputs.image }} \
-                  VERSION=${{ needs.build-and-push.outputs.version }}
+          ansible-playbook -i ansible/hosts ansible/cd_deploy.yml \
+            --vault-password-file ~/.vault_pass \
+            -e "phase=deploy" \
+            -e "release_tag=${{ needs.build-and-push.outputs.version }}" \
+            -e "microblog_image=${{ needs.build-and-push.outputs.image }}" \
+            -e "ansible_python_interpreter=/usr/bin/python3"

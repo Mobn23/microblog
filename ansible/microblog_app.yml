@@ -3,6 +3,7 @@
 
 - name: Run Microblog containers on appservers
   hosts: appserver
+  serial: 1
   remote_user: "{{ server_user }}"
   become: true
 

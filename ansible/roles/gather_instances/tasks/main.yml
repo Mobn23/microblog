@@ -39,9 +39,6 @@
     - item.tags.Stack == "microblog"
     - item.power_state == "running"
 
-
-
-
 -   name: Display all variables/facts known for a host
     debug:
         var: hostvars
