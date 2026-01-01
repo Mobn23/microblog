@@ -7,10 +7,82 @@
         tags: "{{ vmtags }}"
 
 
-
 -   name: Add subnet
     azure_rm_subnet:
         resource_group: "{{ resource_group }}"
         name: "microblog-Subnet"
         address_prefix: "10.0.1.0/24"
         virtual_network: "microblog-Vnet"
+
+# === NEW: Security groups (NSGs) ===
+
+-   name: Create NSG for appservers (shared by appserver1 + appserver2)
+    azure_rm_securitygroup:
+        resource_group: "{{ resource_group }}"
+        name: "appserver-sg"
+        rules:
+            - name: AllowHTTP
+              protocol: Tcp
+              source_port_range: "*"
+              destination_port_range: 80
+              access: Allow
+              priority: 100
+              direction: Inbound
+            - name: AllowSSH
+              protocol: Tcp
+              source_port_range: "*"
+              destination_port_range: 22
+              access: Allow
+              priority: 110
+              direction: Inbound
+
+-   name: Create NSG for database
+    azure_rm_securitygroup:
+        resource_group: "{{ resource_group }}"
+        name: "database-sg"
+        rules:
+            - name: AllowDB
+              protocol: Tcp
+              source_port_range: "*"
+              # MYSQL Port
+              destination_port_range: 3306
+              access: Allow
+              priority: 100
+              direction: Inbound
+            # (SSH)
+            - name: AllowSSH
+              protocol: Tcp
+              source_port_range: "*"
+              destination_port_range: 22
+              access: Allow
+              priority: 110
+              direction: Inbound
+
+-   name: Create NSG for loadbalancer
+    azure_rm_securitygroup:
+        resource_group: "{{ resource_group }}"
+        name: "loadbalancer-sg"
+        rules:
+            - name: AllowHTTPFromInternet
+              protocol: Tcp
+              source_port_range: "*"
+              destination_port_range: 80
+              access: Allow
+              priority: 100
+              direction: Inbound
+            # (HTTPS)
+            - name: AllowHTTPSFromInternet
+              protocol: Tcp
+              source_port_range: "*"
+              destination_port_range: 443
+              access: Allow
+              priority: 101
+              direction: Inbound
+            # (SSH)
+            - name: AllowSSH
+              protocol: Tcp
+              source_port_range: "*"
+              destination_port_range: 22
+              access: Allow
+              priority: 110
+              direction: Inbound

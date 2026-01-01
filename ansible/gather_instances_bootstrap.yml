@@ -1,0 +1,11 @@
+# Gather facts from remote instance and set as hosts
+---
+-   hosts: localhost
+    connection: local
+    gather_facts: False
+    vars:
+        phase: bootstrap
+    collections:
+        - azure.azcollection
+    roles:
+        - gather_instances

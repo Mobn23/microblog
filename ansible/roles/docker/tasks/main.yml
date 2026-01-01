@@ -1,0 +1,34 @@
+# ansible/roles/docker/tasks/main.yml
+---
+
+- name: Install required packages for Docker (Debian/Ubuntu)
+  become: true
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - python3-pip
+      - python3-venv
+    state: present
+
+- name: Install Docker from Debian repo (simplified)
+  become: true
+  apt:
+    name:
+      - docker.io
+    state: present
+
+- name: Ensure Docker service is enabled and started
+  become: true
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Install community.docker Python module (for docker_container)
+  become: true
+  pip:
+    name: docker

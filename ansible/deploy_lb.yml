@@ -1,7 +1,7 @@
 ---
-    -   hosts: loadbalancer
-        remote_user: "deploy"
-        become: yes
-        become_method: sudo
-        roles:
-            -   deploy_lb
+- hosts: devops
+  become: yes
+  remote_user: "{{ bootstrap_user if (phase | default('bootstrap')) == 'bootstrap' else server_user }}"
+  roles:
+    - role: deploy_lb
+      when: hostvars[inventory_hostname].itype == "loadbalancer"

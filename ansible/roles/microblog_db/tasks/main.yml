@@ -1,0 +1,27 @@
+---
+- name: Ensure Docker is installed
+  ansible.builtin.import_role:
+    name: docker
+
+- name: Create Docker volume for MySQL data
+  become: true
+  community.docker.docker_volume:
+    name: "{{ mysql_volume_name }}"
+    state: present
+
+- name: Run MySQL container for Microblog
+  become: true
+  community.docker.docker_container:
+    name: "{{ mysql_container_name }}"
+    image: "{{ mysql_image }}"
+    restart_policy: always
+    env:
+      MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
+      MYSQL_DATABASE: "{{ mysql_db_name }}"
+      MYSQL_USER: "{{ mysql_db_user }}"
+      MYSQL_PASSWORD: "{{ mysql_db_password }}"
+    published_ports:
+      - "{{ mysql_port }}:3306"
+    volumes:
+      - "{{ mysql_volume_name }}:/var/lib/mysql"
+    state: started

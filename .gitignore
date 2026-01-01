@@ -112,3 +112,5 @@ venv.bak/
 
 # mobn own docker notes
 docker-run-commands.txt
+*notes.txt
+.vault_pass

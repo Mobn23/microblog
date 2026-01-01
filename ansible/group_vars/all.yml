@@ -1,21 +1,19 @@
 ---
-# Here you can add variables that will be available for all hosts.
 ansible_python_interpreter: "python3"
 
 region: northeurope
-resource_group: <your resource group> # Change me
-domain_name: <your domain> # Change me
-
-admin_email: <an email>
+resource_group: "DIDA-MOBN23-DV1673-H25-LP2"
+domain_name: "mobn23.me"
+admin_email: mobn23@student.bth.se
 
 vmtags:
-    StudentId: <acronym> # Change me
+  StudentId: mobn23
 
+# use the NEW key you created
+pub_ssh_key_location: "/home/mobn/.ssh/azure.pub"
+ansible_ssh_private_key_file: "/home/mobn/.ssh/azure"
 
-pub_ssh_key_location: '<path to you local ssh public key>' # Change me, your local ssh key!
+bootstrap_user: "deploy"
+server_user: deploy
 
-
-server_user: "deploy"
-server_user_pass: "<a password>" # change me
-server_user_groups:
-    -   sudo
+microblog_port: 8000

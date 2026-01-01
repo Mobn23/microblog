@@ -24,6 +24,16 @@
         security_group: "{{ itype }}-sg"
         tags: "{{ vmtags }}"
 
+- name: Create DNS Zone
+  azure_rm_dnszone:
+    resource_group: "{{ resource_group }}"
+    name: "{{ domain_name }}"
+    state: present
+  delegate_to: localhost
+  run_once: true
+
+
+# DNS for loadbalancer (www.mobn23.me and mobn23.me)
 -   name: Ensure "A" records for loadbalancer
     azure_rm_dnsrecordset:
         resource_group: "{{ resource_group }}"
@@ -39,27 +49,56 @@
         loop_var: relative_name
     delegate_to: 127.0.0.1
 
-
-
--   name: Create VM
-    azure_rm_virtualmachine:
+# NEW: DNS for appserver1.mobn23.me
+-   name: Ensure A record for appserver1.mobn23.me
+    azure_rm_dnsrecordset:
         resource_group: "{{ resource_group }}"
-        name: "{{ iname }}-VM"
-        admin_username: "{{ root_user }}"
-        ssh_password_enabled: false
-        ssh_public_keys:
-            - path: "/home/{{ root_user }}/.ssh/authorized_keys"
-              key_data: "{{ lookup('file', pub_ssh_key_location) }}"
-        vm_size: Standard_B1s
-        network_interfaces: "{{ iname }}-NIC"
-        managed_disk_type: Standard_LRS
-        os_disk_size_gb: 30
-        image:
-            offer: Debian-10
-            publisher: Debian
-            sku: 10
-            version: latest
-        tags:
-            StudentId: "{{ vmtags.StudentId }}"
-            Type: "{{ itype }}"
-            PublicIP: "{{ output_ip_address.state.ip_address }}"
+        relative_name: "appserver1"
+        zone_name: "{{ domain_name }}"
+        record_type: A
+        state: present
+        records:
+            - entry: "{{ output_ip_address.state.ip_address }}"
+    when: iname == 'appserver1'
+    delegate_to: 127.0.0.1
+
+# NEW: DNS for appserver2.mobn23.me
+-   name: Ensure A record for appserver2.mobn23.me
+    azure_rm_dnsrecordset:
+        resource_group: "{{ resource_group }}"
+        relative_name: "appserver2"
+        zone_name: "{{ domain_name }}"
+        record_type: A
+        state: present
+        records:
+            - entry: "{{ output_ip_address.state.ip_address }}"
+    when: iname == 'appserver2'
+    delegate_to: 127.0.0.1
+
+- name: Create VM
+  azure_rm_virtualmachine:
+    resource_group: "{{ resource_group }}"
+    name: "{{ iname }}-VM"
+
+    # IMPORTANT: use the bootstrap user for initial SSH access
+    admin_username: "{{ bootstrap_user }}"
+
+    ssh_password_enabled: false
+    ssh_public_keys:
+      - path: "/home/{{ bootstrap_user }}/.ssh/authorized_keys"
+        key_data: "{{ lookup('file', pub_ssh_key_location) }}"
+
+    vm_size: Standard_B1s
+    network_interfaces: "{{ iname }}-NIC"
+    managed_disk_type: Standard_LRS
+    os_disk_size_gb: 30
+    image:
+      publisher: Canonical
+      offer: 0001-com-ubuntu-server-jammy
+      sku: 22_04-lts
+      version: latest
+    tags:
+      StudentId: "{{ vmtags.StudentId }}"
+      Type: "{{ itype }}"
+      PublicIP: "{{ output_ip_address.state.ip_address }}"
+      Stack: microblog

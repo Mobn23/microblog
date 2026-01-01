@@ -15,6 +15,8 @@
 -   name: create security groups
     hosts: local
     gather_facts: False
+    environment:
+        AZURE_CONFIG_DIR: "/home/mobn/.azure"
     roles: 
         - security_groups
 
@@ -23,6 +25,8 @@
 -   name: create networks
     hosts: local
     gather_facts: False
+    environment:
+        AZURE_CONFIG_DIR: "/home/mobn/.azure" 
     tasks:
         -   include_tasks: roles/provision_instances/tasks/vnet.yml
     collections:
@@ -30,9 +34,11 @@
 
 
 # Here we utilize that we added each instance to hosts.
--   hosts: devops
+-   hosts: provision_targets
     connection: local # Keep ansible from open ssh connection
     gather_facts: False
+    environment:
+        AZURE_CONFIG_DIR: "/home/mobn/.azure"
     # no_log: True
     collections:
         - azure.azcollection

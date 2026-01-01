@@ -1,0 +1,11 @@
+# ansible/microblog_db.yml
+---
+
+- name: Run MySQL DB container for Microblog
+  hosts: database
+  remote_user: "{{ server_user }}"
+  become: true
+
+  roles:
+    - docker
+    - microblog_db

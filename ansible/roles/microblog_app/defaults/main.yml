@@ -1,0 +1,15 @@
+---
+microblog_image: "mobn23/microblog:1.0.0-prod"
+microblog_container_name: "microblog-prod"
+microblog_port: 8000
+
+# Where the DB lives – hostname must resolve from appservers
+microblog_db_host: "{{ hostvars[groups['database'][0]].ansible_default_ipv4.address }}"
+microblog_db_port: 3306
+microblog_db_name: "microblog"
+microblog_db_user: "microblog"
+microblog_db_password: "mobn23"
+
+# Example: DATABASE_URL format (Miguel Grinberg-style)
+microblog_database_url: >-
+  mysql+pymysql://{{ microblog_db_user }}:{{ microblog_db_password }}@{{ microblog_db_host }}/{{ microblog_db_name }}

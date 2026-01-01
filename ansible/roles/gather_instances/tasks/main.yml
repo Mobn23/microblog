@@ -6,25 +6,39 @@
     register: az_facts
 
 
-
 -   name: Display all variables/facts known for a host
     debug:
         var: az_facts
 
 
+- name: add instance to hosts
+  ansible.builtin.add_host:
+    # inventory hostname (so plays can target "database", "appserver1", etc.)
+    name: "{{ item.name | regex_replace('-VM$', '') }}"
 
--   name: add instance to hosts
-    add_host:
-        name: "{{ item.tags.PublicIP }}"
-        groups:
-        - "{{ item.name[0:-3] }}" # instance name from provision_instances/vars/main.yml
-        - "{{ item.tags.Type }}" # instance type from provision_instances/vars/main.yml
-        - devops
-        # the keys below are dynamic and can have any name and value. A way to add data to the host which can be read later
-        iname: "{{ item.name[0:-3] }}"
-        itype: "{{ item.tags.Type }}"
-    with_items: "{{ az_facts.vms }}"
-    when: item.tags.PublicIP is defined and item.power_state == "running"
+    # actual address to SSH to
+    ansible_host: "{{ item.tags.PublicIP }}"
+
+    groups:
+      - "{{ item.tags.Type }}"
+      - devops
+
+    iname: "{{ item.name | regex_replace('-VM$', '') }}"
+    itype: "{{ item.tags.Type }}"
+
+    # pick user based on phase
+    ansible_user: "{{ bootstrap_user if (phase | default('deploy')) == 'bootstrap' else server_user }}"
+    ansible_ssh_private_key_file: "{{ ansible_ssh_private_key_file }}"
+  loop: "{{ az_facts.vms }}"
+  when:
+    - item.tags is defined
+    - item.tags.PublicIP is defined
+    - item.tags.StudentId is defined
+    - item.tags.StudentId == vmtags.StudentId
+    - item.tags.Stack is defined
+    - item.tags.Stack == "microblog"
+    - item.power_state == "running"
+
 
 
 
