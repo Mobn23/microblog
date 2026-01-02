@@ -20,6 +20,10 @@ jobs:
       - name: Set version from tag
         run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
 
+      - name: Lowercase repo for GHCR
+        run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+        shell: bash
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -32,12 +36,12 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ env.VERSION }}
+          tags: ghcr.io/${{ env.REPO_LC }}:${{ env.VERSION }}
 
       - name: Output image
         id: out
         run: |
-          echo "image=ghcr.io/${{ github.repository }}:${{ env.VERSION }}" >> $GITHUB_OUTPUT
+          echo "image=ghcr.io/${{ env.REPO_LC }}:${{ env.VERSION }}" >> $GITHUB_OUTPUT
           echo "version=${{ env.VERSION }}" >> $GITHUB_OUTPUT
 
   deploy:
