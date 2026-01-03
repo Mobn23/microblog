@@ -35,6 +35,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: docker/Dockerfile_prod
           push: true
           tags: ghcr.io/${{ env.REPO_LC }}:${{ env.VERSION }}
 
