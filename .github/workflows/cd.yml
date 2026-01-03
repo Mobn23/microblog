@@ -1,70 +1,31 @@
-name: Deployment (CD)
+name: CD
 
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "v*.*.*" # build+push on version tags
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
-    outputs:
-      image: ${{ steps.out.outputs.image }}
-      version: ${{ steps.out.outputs.version }}
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set version from tag
-        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
-
-      - name: Lowercase repo for GHCR
-        run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Login to GHCR
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & push image
-        uses: docker/build-push-action@v6
+      - name: Build and push image to Docker Hub
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/Dockerfile_prod
           push: true
-          tags: ghcr.io/${{ env.REPO_LC }}:${{ env.VERSION }}
-
-      - name: Output image
-        id: out
-        run: |
-          echo "image=ghcr.io/${{ env.REPO_LC }}:${{ env.VERSION }}" >> $GITHUB_OUTPUT
-          echo "version=${{ env.VERSION }}" >> $GITHUB_OUTPUT
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [build-and-push]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install deploy deps
-        run: make install-deploy
-
-      - name: Add SSH key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-
-      - name: Deploy with Ansible (rolling, no downtime)
-        working-directory: ansible
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: "false"
-        run: |
-          ansible-playbook -i hosts cd_deploy.yml \
-            -e "microblog_image=${{ needs.build-and-push.outputs.image }}" \
-            -e "release_tag=${{ needs.build-and-push.outputs.version }}" \
-            -e "ansible_python_interpreter=/usr/bin/python3"
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/microblog:${{ github.ref_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/microblog:latest
