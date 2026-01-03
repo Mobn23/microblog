@@ -33,3 +33,20 @@
        /home/microblog/.venv/bin/python -m flask db upgrade'
   run_once: true
   delegate_to: "{{ groups['appserver'][0] }}"
+
+- name: Read running container info (verify version)
+  community.docker.docker_container_info:
+    name: "{{ microblog_container_name }}"
+  register: mb_container
+
+- name: Verify correct image is running
+  ansible.builtin.assert:
+    that:
+      - mb_container.container is defined
+      - mb_container.container.Config.Image == microblog_image
+    fail_msg: >
+      Wrong image running on {{ inventory_hostname }}.
+      Expected {{ microblog_image }},
+      got {{ mb_container.container.Config.Image | default('NONE') }}.
+    success_msg: >
+      OK: {{ inventory_hostname }} runs {{ microblog_image }}
