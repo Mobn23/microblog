@@ -12,6 +12,7 @@
     env:
       # Adjust to whatever your app actually reads
       DATABASE_URL: "{{ microblog_database_url }}"
+      MICROBLOG_VERSION: "{{ release_tag }}"
     published_ports:
       - "{{ microblog_port }}:5000"
     state: started

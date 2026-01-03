@@ -128,4 +128,4 @@ def version():
     """
     Returns the current application version from ENV
     """
-    return jsonify(version=os.getenv("APP_VERSION", "unknown")), 200
+    return jsonify(version=os.getenv("MICROBLOG_VERSION", "unknown")), 200
