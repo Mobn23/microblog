@@ -97,6 +97,13 @@ validate:
 
 
 
+# target: bandit                       - Run Bandit SAST security scan on app/
+.PHONY: bandit
+bandit:
+	@bandit -r app/
+
+
+
 # target: validate-docker              - Validate Dockerfile with hadolint
 .PHONY: validate-docker
 validate-docker:

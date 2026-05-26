@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.0] - 2026-05-27
+## Added
+- bandit >= 1.7.5 to requirements/test.txt as SAST dependency
+- Makefile target `bandit` to run Bandit security scan on app/ folder
+## Fixed
+- app/models.py: MD5 hash in avatar() marked with usedforsecurity=False since it is used only for Gravatar URL generation, not for security purposes (resolves Bandit B324)
+
+
 ## [11.1.9] 2026-01-01
 ## Changed
 - cd-kmom02.yml 
