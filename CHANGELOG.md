@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.1] - 2026-05-28
+## Added
+- Makefile targets `trivy-image` and `trivy-fs` to scan the production Docker image and repository filesystem with Trivy.
+
+## Changed
+- Production Docker base image upgraded from `python:3.8-alpine` to `python:3.12-alpine` to remove HIGH/CRITICAL OS package vulnerabilities reported by Trivy.
+- Python production dependencies upgraded to remove HIGH vulnerabilities reported by Trivy.
+- Trivy filesystem scan configured to detect the project requirements files and custom Dockerfile names.
+
+
 ## [11.2.0] - 2026-05-27
 ## Added
 - bandit >= 1.7.5 to requirements/test.txt as SAST dependency

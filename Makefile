@@ -104,6 +104,43 @@ bandit:
 
 
 
+# target: trivy-image                  - Run Trivy vulnerability scan on prod Docker image
+.PHONY: trivy-image
+trivy-image:
+	@docker run --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v trivy-cache:/root/.cache/trivy \
+		-e TRIVY_DB_REPOSITORY=ghcr.io/aquasecurity/trivy-db \
+		aquasec/trivy image \
+		--scanners vuln,secret,misconfig \
+		--no-progress \
+		--timeout 30m \
+		--severity HIGH,CRITICAL \
+		--exit-code 1 \
+		mobn23/microblog:latest
+
+
+# target: trivy-fs                     - Run Trivy vulnerability scan on repo filesystem
+.PHONY: trivy-fs
+trivy-fs:
+	@docker run --rm \
+		-v .:/repo \
+		-v trivy-cache:/root/.cache/trivy \
+		-w /repo \
+		-e TRIVY_DB_REPOSITORY=ghcr.io/aquasecurity/trivy-db \
+		aquasec/trivy:latest fs \
+		--scanners vuln,secret,misconfig \
+		--severity HIGH,CRITICAL \
+		--exit-code 1 \
+		--no-progress \
+		--timeout 30m \
+		--skip-dirs .venv,venv \
+		--file-patterns "pip:requirements/.*\.txt" \
+		--file-patterns "dockerfile:docker/Dockerfile_.*" \
+		.
+
+
+
 # target: validate-docker              - Validate Dockerfile with hadolint
 .PHONY: validate-docker
 validate-docker:
