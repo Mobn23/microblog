@@ -66,28 +66,14 @@
     mode: "0440"
     validate: "/usr/sbin/visudo -cf %s"
 
-- name: Disallow root and password ssh access
+- name: Deploy Mozilla Modern sshd_config
   become: true
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: "{{ item.regexp }}"
-    line: "{{ item.line }}"
-    state: present
-    validate: "/usr/sbin/sshd -T -f %s"
-  loop:
-    - regexp: '^#?PasswordAuthentication\s+'
-      line: "PasswordAuthentication no"
-    - regexp: '^#?PermitRootLogin\s+'
-      line: "PermitRootLogin no"
-  notify: restart ssh
-
-- name: Only allow user to ssh
-  become: true
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^#?AllowUsers\s+'
-    line: "AllowUsers {{ server_user }}"
-    state: present
+  ansible.builtin.copy:
+    src: sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: "0600"
     validate: "/usr/sbin/sshd -T -f %s"
   notify: restart ssh
 

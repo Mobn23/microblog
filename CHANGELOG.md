@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.3] - 2026-05-28
+## Added
+- Mozilla Modern OpenSSH `sshd_config` for the `10-first-minutes` Ansible role.
+
+## Changed
+- `10-first-minutes` now deploys a complete validated SSH daemon configuration instead of editing individual SSH settings, enforcing public-key authentication, restricted ciphers/MACs/KEX algorithms, SFTP logging, disabled root login and `AllowUsers deploy`.
+- Security group task now documents that old rules are purged and that `group.port_rules` provides the firewall rules.
+
+
 ## [11.2.2] - 2026-05-28
 ## Added
 - Makefile target `dockle` to scan the production Docker image for container image best-practice issues.
