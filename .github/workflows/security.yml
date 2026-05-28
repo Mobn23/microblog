@@ -1,0 +1,45 @@
+name: Security
+
+on:
+  workflow_call:
+  push:
+    branches: [ "feature/**", "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  continuous-security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: make install-test
+
+      - name: Run Bandit
+        run: make bandit
+
+      - name: Build production image for security scans
+        run: |
+          docker build \
+            -f docker/Dockerfile_prod \
+            -t mobn23/microblog:latest \
+            -t mobn23/microblog:kmom03 \
+            .
+
+      - name: Run Trivy image scan
+        run: make trivy-image
+
+      - name: Run Trivy filesystem scan
+        run: make trivy-fs
+
+      - name: Run Dockle
+        run: make dockle

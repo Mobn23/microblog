@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.4] - 2026-05-28
+## Added
+- GitHub Actions Security workflow that runs Bandit, Trivy image scan, Trivy filesystem scan and Dockle.
+
+## Changed
+- Ansible CD workflow now requires the reusable Security workflow to pass before tests, Docker image publishing and deployment can run.
+
+
 ## [11.2.3] - 2026-05-28
 ## Added
 - Mozilla Modern OpenSSH `sshd_config` for the `10-first-minutes` Ansible role.

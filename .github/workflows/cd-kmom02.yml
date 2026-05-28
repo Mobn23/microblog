@@ -6,8 +6,14 @@ on:
       - "v*.*.*"
 
 jobs:
+  security:
+    uses: ./.github/workflows/security.yml
+    permissions:
+      contents: read
+
   tests:
     runs-on: ubuntu-latest
+    needs: [security]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
