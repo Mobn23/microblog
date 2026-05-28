@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.2] - 2026-05-28
+## Added
+- Makefile target `dockle` to scan the production Docker image for container image best-practice issues.
+- Docker health check for the production image so container health can be verified automatically.
+
+## Changed
+- Production Docker image now uses `alpine:3.23` with Python installed via `apk add --no-cache`, which removes the Dockle finding about package installation without cache control in the upstream Python image layer.
+- Python dependencies are installed with pip's `--no-cache-dir` option to avoid keeping package cache files in the image.
+- Dockle scans the versioned local image tag `mobn23/microblog:kmom03` instead of `latest`.
+
+
 ## [11.2.1] - 2026-05-28
 ## Added
 - Makefile targets `trivy-image` and `trivy-fs` to scan the production Docker image and repository filesystem with Trivy.

@@ -139,6 +139,14 @@ trivy-fs:
 		--file-patterns "dockerfile:docker/Dockerfile_.*" \
 		.
 
+# target: dockle                       - Run Dockle image best-practice scan on prod Docker image
+.PHONY: dockle
+dockle:
+	@docker run --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		goodwithtech/dockle:latest \
+		mobn23/microblog:kmom03
+
 
 
 # target: validate-docker              - Validate Dockerfile with hadolint

@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1.4
-FROM python:3.12-alpine
-RUN adduser -D microblog
+FROM alpine:3.23
+
+RUN apk add --no-cache python3 py3-pip && \
+    adduser -D microblog
 
 WORKDIR /home/microblog
 
@@ -10,9 +12,10 @@ COPY migrations migrations
 COPY requirements requirements
 COPY requirements.txt microblog.py boot.sh ./
 
-RUN python -m venv .venv && \
-    .venv/bin/pip3 install -r requirements.txt
+RUN python3 -m venv .venv && \
+    .venv/bin/pip3 install --no-cache-dir -r requirements.txt
 
+ENV PATH="/home/microblog/.venv/bin:$PATH"
 ENV FLASK_APP microblog.py
 
 RUN chmod +x boot.sh && \
@@ -21,4 +24,6 @@ RUN chmod +x boot.sh && \
 USER microblog
 
 EXPOSE 5000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/', timeout=5)" || exit 1
 ENTRYPOINT ["./boot.sh"]
