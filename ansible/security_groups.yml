@@ -1,0 +1,9 @@
+# Update Azure Network Security Groups after VM IPs are known.
+---
+-   name: update security groups
+    hosts: local
+    gather_facts: False
+    environment:
+        AZURE_CONFIG_DIR: "/home/mobn/.azure"
+    roles:
+        - security_groups

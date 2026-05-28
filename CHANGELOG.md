@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.6] - 2026-05-28
+## Changed
+- Load balancer deployment now renews existing Let's Encrypt certificates with certbot instead of only creating certificates when missing.
+
+
+## [11.2.5] - 2026-05-28
+## Added
+- Dedicated Ansible playbook for updating Azure Security Groups after VM addresses have been gathered.
+
+## Changed
+- Security Groups role now runs after VM creation and bootstrap fact gathering instead of before provisioning.
+- Public inbound Security Group rules are limited to ports 22, 80 and 443; app port 8000 is limited to the load balancer and MySQL port 3306 is limited to the app servers.
+
+
 ## [11.2.4] - 2026-05-28
 ## Added
 - GitHub Actions Security workflow that runs Bandit, Trivy image scan, Trivy filesystem scan and Dockle.

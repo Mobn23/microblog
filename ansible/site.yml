@@ -5,6 +5,8 @@
 
 - import_playbook: 10-first-minutes.yml
 
+- import_playbook: security_groups.yml
+
 - import_playbook: gather_instances_deploy.yml
 
 - import_playbook: microblog_db.yml
