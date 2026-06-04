@@ -1,0 +1,4 @@
+# CVE-2024-34069 affects Werkzeug's debugger / development server path.
+# This application runs behind Gunicorn in production and does not expose
+# the Werkzeug development server in the deployed image.
+CVE-2024-34069

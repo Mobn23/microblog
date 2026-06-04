@@ -108,11 +108,13 @@ bandit:
 .PHONY: trivy-image
 trivy-image:
 	@docker run --rm \
+		-v .:/repo:ro \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v trivy-cache:/root/.cache/trivy \
 		-e TRIVY_DB_REPOSITORY=ghcr.io/aquasecurity/trivy-db \
 		aquasec/trivy image \
 		--scanners vuln,secret,misconfig \
+		--ignorefile /repo/.trivyignore \
 		--no-progress \
 		--timeout 30m \
 		--severity HIGH,CRITICAL \
@@ -130,6 +132,7 @@ trivy-fs:
 		-e TRIVY_DB_REPOSITORY=ghcr.io/aquasecurity/trivy-db \
 		aquasec/trivy:latest fs \
 		--scanners vuln,secret,misconfig \
+		--ignorefile /repo/.trivyignore \
 		--severity HIGH,CRITICAL \
 		--exit-code 1 \
 		--no-progress \
