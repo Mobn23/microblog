@@ -13,6 +13,11 @@
       - python3-pip
       - python3-venv
     state: present
+    lock_timeout: 300
+  register: docker_prereqs
+  retries: 3
+  delay: 20
+  until: docker_prereqs is succeeded
 
 - name: Install Docker from Debian repo (simplified)
   become: true
@@ -20,6 +25,11 @@
     name:
       - docker.io
     state: present
+    lock_timeout: 300
+  register: docker_pkg
+  retries: 3
+  delay: 20
+  until: docker_pkg is succeeded
 
 - name: Ensure Docker service is enabled and started
   become: true

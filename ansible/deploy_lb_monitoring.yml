@@ -1,0 +1,10 @@
+---
+- import_playbook: gather_instances_deploy.yml
+
+- name: Gather facts for monitoring host used by Grafana reverse proxy
+  hosts: monitoring
+  remote_user: "{{ server_user }}"
+  gather_facts: true
+  tasks: []
+
+- import_playbook: deploy_lb.yml

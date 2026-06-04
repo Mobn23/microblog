@@ -1,0 +1,9 @@
+---
+- name: Deploy monitoring stack on monitoring host
+  hosts: monitoring
+  remote_user: "{{ server_user }}"
+  become: true
+
+  roles:
+    - docker
+    - monitoring_stack

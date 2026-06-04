@@ -13,13 +13,14 @@
       # Adjust to whatever your app actually reads
       DATABASE_URL: "{{ microblog_database_url }}"
       MICROBLOG_VERSION: "{{ release_tag }}"
+      PROMETHEUS_MULTIPROC_DIR: "{{ microblog_prometheus_multiproc_dir }}"
     published_ports:
       - "{{ microblog_port }}:5000"
     state: started
 
 - name: Wait for MySQL to accept connections from appserver
   ansible.builtin.wait_for:
-    host: "{{ hostvars[groups['database'][0]].ansible_default_ipv4.address }}"
+    host: "{{ microblog_db_host }}"
     port: 3306
     delay: 2
     timeout: 180
@@ -30,10 +31,21 @@
     cmd: >
       docker exec {{ microblog_container_name }}
       /bin/sh -lc
-      'export FLASK_APP=microblog.py;
+      'export FLASK_APP=microblog.py PROMETHEUS_MULTIPROC_DIR={{ microblog_prometheus_multiproc_dir }};
+       mkdir -p {{ microblog_prometheus_multiproc_dir }};
        /home/microblog/.venv/bin/python -m flask db upgrade'
+  register: migration_result
   run_once: true
   delegate_to: "{{ groups['appserver'][0] }}"
+  changed_when: migration_result.rc == 0
+  failed_when: >
+    migration_result.rc != 0 and
+    (
+      migration_result.stderr_lines | default([])
+    ) != [
+      'INFO  [alembic.runtime.migration] Context impl MySQLImpl.',
+      'INFO  [alembic.runtime.migration] Will assume non-transactional DDL.'
+    ]
 
 - name: Read running container info (verify version)
   community.docker.docker_container_info:

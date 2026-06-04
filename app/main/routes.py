@@ -129,3 +129,12 @@ def version():
     Returns the current application version from ENV
     """
     return jsonify(version=os.getenv("MICROBLOG_VERSION", "unknown")), 200
+
+
+@bp.route("/trigger-monitoring-error", methods=['GET'])
+def trigger_monitoring_error():
+    """
+    Intentionally raise an application error so monitoring can be tested.
+    """
+    current_app.logger.error("Intentional monitoring test error triggered")
+    raise RuntimeError("Intentional monitoring test error")

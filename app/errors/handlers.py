@@ -20,6 +20,6 @@ def internal_error(error):
     """
     Error handler for code 500
     """
-    current_app.logger.info(error)
+    current_app.logger.exception("Unhandled application error: %s", error)
     db.session.rollback()
     return render_template('errors/500.html'), 500

@@ -1,0 +1,14 @@
+groups:
+  - name: monitoring-stack
+    rules:
+      - alert: PrometheusTargetMissing
+        expr: up{job="prometheus"} == 0
+        for: 30s
+      - alert: MicroblogApplicationError
+        expr: sum(increase(flask_http_request_total{job="flask",status=~"5.."}[5m])) > 0
+        for: 10s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Microblog returned HTTP 5xx responses"
+          description: "Microblog has returned one or more HTTP 5xx responses during the last minute."

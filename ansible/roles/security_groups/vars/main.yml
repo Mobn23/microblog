@@ -23,6 +23,13 @@ sg_groups:
             priority: 1003
             direction: Inbound
             source_address_prefix: '0.0.0.0/0'
+        -   name: NGINX_EXPORTER_FROM_MONITORING
+            protocol: Tcp
+            destination_port_range: 9113
+            access: Allow
+            priority: 1004
+            direction: Inbound
+            source_address_prefix: "{{ hostvars['monitoring'].ansible_default_ipv4.address }}/32"
     -   name: appserver
         port_rules:
         -   name: SSH
@@ -39,6 +46,13 @@ sg_groups:
             priority: 1002
             direction: Inbound
             source_address_prefix: "{{ hostvars[groups['loadbalancer'][0]].ansible_default_ipv4.address }}/32"
+        -   name: APP_FROM_MONITORING
+            protocol: Tcp
+            destination_port_range: 8000
+            access: Allow
+            priority: 1003
+            direction: Inbound
+            source_address_prefix: "{{ hostvars['monitoring'].ansible_default_ipv4.address }}/32"
     -   name: database
         port_rules:
         -   name: SSH
@@ -62,3 +76,33 @@ sg_groups:
             priority: 1003
             direction: Inbound
             source_address_prefix: "{{ hostvars[groups['appserver'][1]].ansible_default_ipv4.address }}/32"
+    -   name: monitoring
+        port_rules:
+        -   name: SSH
+            protocol: Tcp
+            destination_port_range: 22
+            access: Allow
+            priority: 1001
+            direction: Inbound
+            source_address_prefix: '0.0.0.0/0'
+        -   name: GRAFANA
+            protocol: Tcp
+            destination_port_range: 3000
+            access: Allow
+            priority: 1002
+            direction: Inbound
+            source_address_prefix: '0.0.0.0/0'
+        -   name: PROMETHEUS
+            protocol: Tcp
+            destination_port_range: 9090
+            access: Allow
+            priority: 1003
+            direction: Inbound
+            source_address_prefix: '0.0.0.0/0'
+        -   name: ALERTMANAGER
+            protocol: Tcp
+            destination_port_range: 9093
+            access: Allow
+            priority: 1004
+            direction: Inbound
+            source_address_prefix: '0.0.0.0/0'

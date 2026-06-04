@@ -1,0 +1,186 @@
+---
+- name: Create Docker volume for Prometheus data
+  community.docker.docker_volume:
+    name: "{{ prometheus_data_volume }}"
+    state: present
+
+- name: Create Docker volume for Grafana data
+  community.docker.docker_volume:
+    name: "{{ grafana_data_volume }}"
+    state: present
+
+- name: Create Docker network for monitoring stack
+  community.docker.docker_network:
+    name: "{{ monitoring_stack_network }}"
+    state: present
+
+- name: Ensure monitoring config directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ monitoring_config_dir }}"
+
+- name: Deploy Prometheus config
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: "{{ monitoring_config_dir }}/prometheus.yml"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deploy Prometheus alert rules
+  ansible.builtin.template:
+    src: rules.yml.j2
+    dest: "{{ monitoring_config_dir }}/rules.yml"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deploy Alertmanager config
+  ansible.builtin.template:
+    src: alertmanager.yml.j2
+    dest: "{{ monitoring_config_dir }}/alertmanager.yml"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Run node exporter container
+  community.docker.docker_container:
+    name: "{{ node_exporter_container_name }}"
+    image: "{{ node_exporter_image }}"
+    restart_policy: unless-stopped
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - name: "{{ monitoring_stack_network }}"
+    state: started
+
+- name: Run Prometheus container
+  community.docker.docker_container:
+    name: "{{ prometheus_container_name }}"
+    image: "{{ prometheus_image }}"
+    restart_policy: unless-stopped
+    published_ports:
+      - "{{ prometheus_port }}:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--storage.tsdb.retention.time=24h"
+      - "--web.enable-lifecycle"
+    volumes:
+      - "{{ monitoring_config_dir }}/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+      - "{{ monitoring_config_dir }}/rules.yml:/etc/prometheus/rules.yml:ro"
+      - "{{ prometheus_data_volume }}:/prometheus"
+    networks:
+      - name: "{{ monitoring_stack_network }}"
+    state: started
+
+- name: Run Grafana container
+  community.docker.docker_container:
+    name: "{{ grafana_container_name }}"
+    image: "{{ grafana_image }}"
+    restart_policy: unless-stopped
+    published_ports:
+      - "{{ grafana_port }}:3000"
+    env:
+      GF_SECURITY_ADMIN_USER: "{{ grafana_admin_user }}"
+      GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_admin_password }}"
+      GF_SERVER_ROOT_URL: "https://{{ domain_name }}/grafana/"
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    volumes:
+      - "{{ grafana_data_volume }}:/var/lib/grafana"
+    networks:
+      - name: "{{ monitoring_stack_network }}"
+    state: started
+
+- name: Run Alertmanager container
+  community.docker.docker_container:
+    name: "{{ alertmanager_container_name }}"
+    image: "{{ alertmanager_image }}"
+    restart_policy: unless-stopped
+    published_ports:
+      - "{{ alertmanager_port }}:9093"
+    command:
+      - "--config.file=/config/alertmanager.yml"
+    volumes:
+      - "{{ monitoring_config_dir }}/alertmanager.yml:/config/alertmanager.yml:ro"
+    networks:
+      - name: "{{ monitoring_stack_network }}"
+    state: started
+
+- name: Wait for Grafana API to become ready
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: "{{ grafana_port }}"
+    delay: 2
+    timeout: 60
+    state: started
+
+- name: Configure Prometheus as Grafana datasource
+  community.grafana.grafana_datasource:
+    name: Prometheus
+    grafana_url: "{{ grafana_api_url }}"
+    grafana_user: "{{ grafana_admin_user }}"
+    grafana_password: "{{ grafana_admin_password }}"
+    ds_type: prometheus
+    ds_url: http://prometheus:9090
+    access: proxy
+    is_default: true
+    state: present
+
+- name: Import Node Exporter dashboard into Grafana
+  community.grafana.grafana_dashboard:
+    grafana_url: "http://{{ hostvars[inventory_hostname].ansible_host }}:{{ grafana_port }}"
+    grafana_user: "{{ grafana_admin_user }}"
+    grafana_password: "{{ grafana_admin_password }}"
+    state: present
+    overwrite: true
+    path: "{{ role_path }}/files/node-exporter-dashboard.json"
+  delegate_to: localhost
+  become: false
+
+- name: Import Nginx Exporter dashboard into Grafana
+  community.grafana.grafana_dashboard:
+    grafana_url: "http://{{ hostvars[inventory_hostname].ansible_host }}:{{ grafana_port }}"
+    grafana_user: "{{ grafana_admin_user }}"
+    grafana_password: "{{ grafana_admin_password }}"
+    state: present
+    overwrite: true
+    path: "{{ role_path }}/files/nginx-exporter-dashboard.json"
+  delegate_to: localhost
+  become: false
+
+- name: Import Flask Exporter dashboard into Grafana
+  community.grafana.grafana_dashboard:
+    grafana_url: "http://{{ hostvars[inventory_hostname].ansible_host }}:{{ grafana_port }}"
+    grafana_user: "{{ grafana_admin_user }}"
+    grafana_password: "{{ grafana_admin_password }}"
+    state: present
+    overwrite: true
+    path: "{{ role_path }}/files/flask-exporter-dashboard.json"
+  delegate_to: localhost
+  become: false
+
+- name: Import Microblog Errors dashboard into Grafana
+  community.grafana.grafana_dashboard:
+    grafana_url: "http://{{ hostvars[inventory_hostname].ansible_host }}:{{ grafana_port }}"
+    grafana_user: "{{ grafana_admin_user }}"
+    grafana_password: "{{ grafana_admin_password }}"
+    state: present
+    overwrite: true
+    path: "{{ role_path }}/files/microblog-errors-dashboard.json"
+  delegate_to: localhost
+  become: false

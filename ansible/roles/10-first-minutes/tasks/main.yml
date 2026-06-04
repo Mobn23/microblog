@@ -9,16 +9,26 @@
   become: true
   ansible.builtin.apt:
     force_apt_get: true
+    lock_timeout: 300
     update_cache: true
     cache_valid_time: 3600
     upgrade: dist
+  register: apt_upgrade_result
+  retries: 3
+  delay: 20
+  until: apt_upgrade_result is succeeded
 
 - name: Install packages
   become: true
   ansible.builtin.apt:
     force_apt_get: true
+    lock_timeout: 300
     name: "{{ packages }}"
     state: present
+  register: apt_packages_result
+  retries: 3
+  delay: 20
+  until: apt_packages_result is succeeded
 
 - name: Copy unattended upgrades 10 settings
   become: true
@@ -90,4 +100,3 @@
     remove: true
   when:
     - remove_bootstrap_user | default(false) | bool
-

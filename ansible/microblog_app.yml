@@ -1,6 +1,12 @@
 # ansible/microblog_app.yml
 ---
 
+- name: Gather facts on database host for app DB connection
+  hosts: database
+  remote_user: "{{ server_user }}"
+  gather_facts: true
+  tasks: []
+
 - name: Run Microblog containers on appservers
   hosts: appserver
   serial: 1

@@ -1,4 +1,8 @@
 ---
+- name: Ensure Docker is installed for nginx exporter
+  ansible.builtin.import_role:
+    name: docker
+
 -   name: Install packages
     apt:
         name: "{{ packages }}"
@@ -21,12 +25,19 @@
     when: not letsencrypt_cert.stat.exists
     command:
       cmd: "certbot certonly --standalone --noninteractive --expand --agree-tos --email {{ admin_email }} -d {{ domain_name }} -d www.{{ domain_name }}"
+    register: certbot_issue
+    retries: 5
+    delay: 20
+    until: certbot_issue.rc == 0
 
 -   name: Renew existing certificate if needed.
     when: letsencrypt_cert.stat.exists
     command:
       cmd: "certbot renew --standalone --noninteractive"
     register: certbot_renew
+    retries: 5
+    delay: 20
+    until: certbot_renew.rc == 0
     changed_when: >-
       'no renewals were attempted' not in (certbot_renew.stdout | lower)
       and 'not yet due for renewal' not in (certbot_renew.stdout | lower)
@@ -66,6 +77,16 @@
     service:
       name: nginx
       state: started
+
+- name: Run nginx prometheus exporter container
+  community.docker.docker_container:
+    name: nginx-exporter
+    image: nginx/nginx-prometheus-exporter:1.5.1
+    restart_policy: unless-stopped
+    network_mode: host
+    command:
+      - --nginx.scrape-uri=http://127.0.0.1:8080/stub_status
+    state: started
 
 - name: Ensure nginx is running with latest config (always)
   service:

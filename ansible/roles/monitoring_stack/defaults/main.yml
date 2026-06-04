@@ -1,0 +1,24 @@
+---
+monitoring_stack_network: monitoring
+monitoring_config_dir: /opt/monitoring
+
+prometheus_container_name: prometheus
+prometheus_image: prom/prometheus:v2.31.1
+prometheus_port: 9090
+prometheus_data_volume: prometheus-data
+
+grafana_container_name: grafana
+grafana_image: grafana/grafana:8.2.4
+grafana_port: 3000
+grafana_data_volume: grafana-data
+grafana_admin_user: admin
+grafana_admin_password: admin
+grafana_api_url: http://127.0.0.1:3000
+
+alertmanager_container_name: alertmanager
+alertmanager_image: prom/alertmanager:v0.23.0
+alertmanager_port: 9093
+alertmanager_webhook_url: "https://webhook.site/5fc01b91-1072-4f3b-8fba-db1c4b05582f"
+
+node_exporter_container_name: node-exporter
+node_exporter_image: prom/node-exporter:v1.2.2

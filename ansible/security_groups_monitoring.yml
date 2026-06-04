@@ -1,0 +1,10 @@
+---
+- import_playbook: gather_instances_deploy.yml
+
+- name: Gather facts for hosts used by security group source rules
+  hosts: mobn23.me:app1.mobn23.me:app2.mobn23.me:monitoring
+  remote_user: "{{ server_user }}"
+  gather_facts: true
+  tasks: []
+
+- import_playbook: security_groups.yml

@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.7] - 2026-06-05
+## Added
+- Monitoring VM deployment with Prometheus, Grafana and Alertmanager through Ansible.
+- Grafana dashboards imported through the Ansible Grafana dashboard module for node exporter, nginx exporter, flask exporter and application errors.
+- Nginx exporter on the load balancer for monitoring Nginx metrics.
+- Application error trigger route for testing monitoring and alerting.
+
+## Changed
+- Grafana is now available through the load balancer at `/grafana/`.
+- Prometheus now scrapes app servers, node exporter, Prometheus itself and nginx exporter.
+- Alertmanager now forwards application error alerts to webhook.site.
+- Production image and runtime configuration were updated to support Prometheus multiprocess metrics and the monitoring stack.
+
+
 ## [11.2.6] - 2026-05-28
 ## Changed
 - Load balancer deployment now renews existing Let's Encrypt certificates with certbot instead of only creating certificates when missing.

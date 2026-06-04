@@ -1,0 +1,6 @@
+groups:
+  - name: More get request than 20
+    rules:
+      - alert: Between20And25
+        expr: flask_http_request_total{method="GET",status="200"} > 20 and flask_http_request_total{method="GET",status="200"} < 40
+        for: 5s

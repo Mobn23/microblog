@@ -5,6 +5,10 @@ upstream app-hosts {
    {% endfor %}
 }
 
+upstream grafana-host {
+   server {{ hostvars['monitoring'].ansible_default_ipv4.address }}:3000;
+}
+
 
 
 access_log /var/log/nginx/access.log;
@@ -26,11 +30,39 @@ server {
    ssl_certificate_key /etc/letsencrypt/live/{{ domain_name }}/privkey.pem;
    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
 
+   location = /grafana {
+      return 301 /grafana/;
+   }
+
+   location /grafana/ {
+      proxy_pass http://grafana-host/;
+      proxy_http_version 1.1;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-Host $host;
+      proxy_set_header X-Forwarded-Prefix /grafana;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+   }
+
    location / {
       proxy_pass http://app-hosts;
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
+   }
+}
+
+server {
+   listen 8080;
+   server_name 127.0.0.1 localhost;
+
+   location /stub_status {
+      stub_status;
+      allow 127.0.0.1;
+      deny all;
    }
 }
