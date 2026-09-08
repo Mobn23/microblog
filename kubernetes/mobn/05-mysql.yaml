@@ -24,6 +24,8 @@ spec:
       labels:
         app: mysql
     spec:
+      securityContext:
+        runAsNonRoot: true
       containers:
       - image: mysql:5.7
         name: mysql
@@ -48,6 +50,7 @@ spec:
         securityContext:
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
+          runAsNonRoot: false
           capabilities:
             drop:
               - ALL

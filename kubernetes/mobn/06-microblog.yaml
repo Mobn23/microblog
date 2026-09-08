@@ -24,6 +24,10 @@ spec:
       labels:
         app: microblog
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
       - image: mobn23/microblog:1.0.0-prod
         name: microblog

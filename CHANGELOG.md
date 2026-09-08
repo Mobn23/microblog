@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.11] - 2026-09-08
+## Fixed
+- Kubernetes manifests (`05-mysql.yaml`, `06-microblog.yaml`) now also set a pod-level `securityContext` (`runAsNonRoot`), resolving the remaining HIGH Trivy misconfiguration finding (KSV-0118) that container-level settings alone didn't satisfy. MySQL explicitly overrides `runAsNonRoot: false` at the container level so its entrypoint can still start as root before dropping privileges internally.
+
+
 ## [11.2.10] - 2026-09-08
 ## Fixed
 - `requirements/deploy.txt`: `ansible-core` upgraded from `2.18.10` to `2.18.19` to resolve a HIGH severity argument-injection CVE (CVE-2026-11332) in `ansible-galaxy role install` reported by Trivy's filesystem scan.
