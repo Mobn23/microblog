@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.9] - 2026-09-08
+## Fixed
+- Production Docker image now runs `apk update && apk upgrade` at build time to pull patched Alpine OS packages, resolving 7 HIGH `util-linux`/`libuuid` CVEs (CVE-2026-53612, CVE-2026-53613, CVE-2026-53614, CVE-2026-76642, CVE-2026-78408, CVE-2026-78409, CVE-2026-78410) reported by Trivy against the floating `python:3.11-alpine` base image.
+
+
 ## [11.2.8] - 2026-09-08
 ## Added
 - Kubernetes manifests for kmom05: Ingress (`ingress-nginx`) with automated TLS via `cert-manager` (staging and production Let's Encrypt issuers), Microblog Deployment (2 replicas, `livenessProbe`), and a MySQL Deployment backed by a PersistentVolume/PersistentVolumeClaim.
