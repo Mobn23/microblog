@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.8] - 2026-09-08
+## Added
+- Kubernetes manifests for kmom05: Ingress (`ingress-nginx`) with automated TLS via `cert-manager` (staging and production Let's Encrypt issuers), Microblog Deployment (2 replicas, `livenessProbe`), and a MySQL Deployment backed by a PersistentVolume/PersistentVolumeClaim.
+- `kubernetes/mobn/03-secrets.yaml.example` documenting the required Secret keys; the real secrets file is excluded from git via `kubernetes/.gitignore`.
+- `kubernetes/mobn/README.md` with setup instructions for secrets and a note on the storage class choice.
+
+
 ## [11.2.7] - 2026-06-05
 ## Added
 - Monitoring VM deployment with Prometheus, Grafana and Alertmanager through Ansible.

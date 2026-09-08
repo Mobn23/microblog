@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: microblog
+  annotations:
+    cert-manager.io/issuer: "letsencrypt-staging"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - mobn23.me
+    secretName: microblog-tls
+  rules:
+  - host: mobn23.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: microblog
+            port:
+              number: 5000
