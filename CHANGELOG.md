@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.12] - 2026-09-08
+## Added
+- `kubernetes/mobn/08-hpa.yaml`: HorizontalPodAutoscaler for the Microblog Deployment (2-5 replicas, targets 70% CPU utilization).
+
+## Changed
+- `kubernetes/mobn/06-microblog.yaml`: added `resources.requests`/`limits` (CPU/memory) to the Microblog container, required for the HPA to compute CPU utilization percentage. Verified against the live AKS cluster: HPA reports real metrics (`cpu: 25%/70%`), correctly holding at the 2-replica minimum under normal load.
+
+
 ## [11.2.11] - 2026-09-08
 ## Fixed
 - Kubernetes manifests (`05-mysql.yaml`, `06-microblog.yaml`) now also set a pod-level `securityContext` (`runAsNonRoot`), resolving the remaining HIGH Trivy misconfiguration finding (KSV-0118) that container-level settings alone didn't satisfy. MySQL explicitly overrides `runAsNonRoot: false` at the container level so its entrypoint can still start as root before dropping privileges internally.
