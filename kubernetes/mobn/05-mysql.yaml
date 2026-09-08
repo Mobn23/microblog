@@ -45,10 +45,29 @@ spec:
         ports:
         - containerPort: 3306
           name: mysql
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+            add:
+              - CHOWN
+              - SETUID
+              - SETGID
+              - DAC_OVERRIDE
         volumeMounts:
         - name: mysql-persistent-storage
           mountPath: /var/lib/mysql
+        - name: run-mysqld
+          mountPath: /var/run/mysqld
+        - name: tmp
+          mountPath: /tmp
       volumes:
       - name: mysql-persistent-storage
         persistentVolumeClaim:
           claimName: mysql-pv-claim
+      - name: run-mysqld
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}

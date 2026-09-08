@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.10] - 2026-09-08
+## Fixed
+- `requirements/deploy.txt`: `ansible-core` upgraded from `2.18.10` to `2.18.19` to resolve a HIGH severity argument-injection CVE (CVE-2026-11332) in `ansible-galaxy role install` reported by Trivy's filesystem scan.
+- Kubernetes manifests (`05-mysql.yaml`, `06-microblog.yaml`) now set an explicit `securityContext` on both containers (`readOnlyRootFilesystem`, `allowPrivilegeEscalation: false`, dropped Linux capabilities) instead of relying on the default, resolving 6 HIGH Trivy misconfiguration findings (KSV-0014, KSV-0118). MySQL retains the minimal capabilities its entrypoint needs (`CHOWN`, `SETUID`, `SETGID`, `DAC_OVERRIDE`) plus `emptyDir` mounts for `/var/run/mysqld` and `/tmp`; Microblog runs as its existing non-root image user (`runAsUser: 1000`) with an `emptyDir` mount for `/tmp`.
+
+
 ## [11.2.9] - 2026-09-08
 ## Fixed
 - Production Docker image now runs `apk update && apk upgrade` at build time to pull patched Alpine OS packages, resolving 7 HIGH `util-linux`/`libuuid` CVEs (CVE-2026-53612, CVE-2026-53613, CVE-2026-53614, CVE-2026-76642, CVE-2026-78408, CVE-2026-78409, CVE-2026-78410) reported by Trivy against the floating `python:3.11-alpine` base image.
