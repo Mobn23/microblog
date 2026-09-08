@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.13] - 2026-09-08
+## Fixed
+- `kubernetes/mobn/07-ingress.yaml`: switched from `letsencrypt-staging` to `letsencrypt-prod`, now issuing a trusted, browser-verified certificate for `mobn23.me` (confirmed via `curl` without `-k` and `openssl x509`: issuer `Let's Encrypt CN=YR2`, no `(STAGING)` prefix).
+- Upgraded cluster's `cert-manager` from v1.8.0 to v1.21.1 (13 versions behind; suspected source of an ACME challenge-handling race).
+- Root cause of repeated issuance failures: a stale A record at the domain registrar (`mobn23.me` had two A records — one dead, pointing nowhere reachable — causing Let's Encrypt's HTTP-01 validator to intermittently pick the wrong one and time out). Removed at the registrar; unrelated to any Kubernetes or Azure configuration.
+
+
 ## [11.2.12] - 2026-09-08
 ## Added
 - `kubernetes/mobn/08-hpa.yaml`: HorizontalPodAutoscaler for the Microblog Deployment (2-5 replicas, targets 70% CPU utilization).
