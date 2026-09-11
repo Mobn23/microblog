@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 
+## [11.2.14] - 2026-09-11
+## Added
+- `helm/microblog/`: Helm chart packaging the Microblog deployment (MySQL with persistent storage, the Flask app, TLS Ingress via cert-manager, and a Horizontal Pod Autoscaler) as a reusable, configurable alternative to the plain manifests in `kubernetes/mobn/`. Verified with a live install into an isolated namespace on the AKS cluster: MySQL reachable and queryable, Microblog reachable through its Service with the expected `HTTP 302`, then fully torn down without affecting the existing deployment.
+
+
 ## [11.2.13] - 2026-09-08
 ## Fixed
 - `kubernetes/mobn/07-ingress.yaml`: switched from `letsencrypt-staging` to `letsencrypt-prod`, now issuing a trusted, browser-verified certificate for `mobn23.me` (confirmed via `curl` without `-k` and `openssl x509`: issuer `Let's Encrypt CN=YR2`, no `(STAGING)` prefix).

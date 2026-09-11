@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.mysql.pvName }}
+spec:
+  capacity:
+    storage: {{ .Values.mysql.storage }}
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  hostPath:
+    path: {{ .Values.mysql.hostPath }}
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  resources:
+    requests:
+      storage: {{ .Values.mysql.storage }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: mysql
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - image: {{ .Values.mysql.image }}
+          name: mysql
+          env:
+            - name: MYSQL_DATABASE
+              value: microblog
+            - name: MYSQL_USER
+              value: microblog
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: MYSQL_PASSWORD
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secretName }}
+                  key: MYSQL_ROOT_PASSWORD
+          ports:
+            - containerPort: 3306
+              name: mysql
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsNonRoot: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - CHOWN
+                - SETUID
+                - SETGID
+                - DAC_OVERRIDE
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+            - name: run-mysqld
+              mountPath: /var/run/mysqld
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysql-pv-claim
+        - name: run-mysqld
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}

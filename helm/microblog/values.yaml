@@ -1,0 +1,33 @@
+microblog:
+  image:
+    repository: mobn23/microblog
+    tag: 1.0.0-prod
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+mysql:
+  image: mysql:5.7
+  storage: 5Gi
+  hostPath: /mnt/data/mysql
+  pvName: mysql-pv-volume
+
+# Name of an existing Secret (MYSQL_PASSWORD, MYSQL_ROOT_PASSWORD, DATABASE_URL,
+# SECRET_KEY) - not managed by this chart, create it separately (see chart README).
+secretName: microblog-secrets
+
+ingress:
+  enabled: true
+  host: mobn23.me
+  clusterIssuer: letsencrypt-prod
+  tlsSecretName: microblog-tls
+
+hpa:
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
